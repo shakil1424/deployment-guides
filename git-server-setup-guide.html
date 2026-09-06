@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Git Server Setup Guide — ServiceHub</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2128;
+    --border: #30363d;
+    --green: #3fb950;
+    --green-dim: #1a4a2e;
+    --blue: #58a6ff;
+    --yellow: #d29922;
+    --yellow-dim: #3d2f00;
+    --red: #f85149;
+    --red-dim: #3d0d09;
+    --purple: #bc8cff;
+    --text: #e6edf3;
+    --text-muted: #8b949e;
+    --text-dim: #484f58;
+    --code-bg: #010409;
+    --step-num: #21262d;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 14px;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    width: 32px;
+    height: 32px;
+    background: var(--green);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  header h1 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  header p {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 1px;
+  }
+
+  .badge {
+    margin-left: auto;
+    background: var(--green-dim);
+    color: var(--green);
+    border: 1px solid var(--green);
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  /* LAYOUT */
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 24px;
+  }
+
+  /* ALERT BOXES */
+  .alert {
+    border-radius: 6px;
+    padding: 14px 16px;
+    margin-bottom: 24px;
+    border-left: 3px solid;
+    font-size: 13px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .alert-warning {
+    background: var(--yellow-dim);
+    border-color: var(--yellow);
+    color: #e3b341;
+  }
+
+  .alert-danger {
+    background: var(--red-dim);
+    border-color: var(--red);
+    color: #f85149;
+  }
+
+  .alert-success {
+    background: var(--green-dim);
+    border-color: var(--green);
+    color: var(--green);
+  }
+
+  .alert-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .alert-content strong { display: block; margin-bottom: 4px; }
+
+  /* SECTION HEADERS */
+  .phase {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 40px 0 20px;
+  }
+
+  .phase-num {
+    background: var(--blue);
+    color: #000;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  .phase h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .phase p {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* STEP CARDS */
+  .step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+
+  .step-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .step-num {
+    background: var(--step-num);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .step-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    flex: 1;
+  }
+
+  .step-tag {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .tag-server { background: #1f3a5f; color: var(--blue); border: 1px solid #2d5a8e; }
+  .tag-github { background: #2d2210; color: #e3b341; border: 1px solid #5a4415; }
+  .tag-critical { background: var(--red-dim); color: var(--red); border: 1px solid #5a1a16; }
+  .tag-optional { background: #1a1f2e; color: var(--text-muted); border: 1px solid var(--border); }
+
+  .step-body {
+    padding: 16px;
+  }
+
+  .step-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+    line-height: 1.7;
+  }
+
+  /* CODE BLOCKS */
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+
+  .code-label {
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    padding: 6px 14px;
+    font-size: 11px;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .copy-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .copy-btn:hover {
+    background: var(--surface);
+    color: var(--text);
+    border-color: var(--text-muted);
+  }
+
+  .copy-btn.copied {
+    background: var(--green-dim);
+    color: var(--green);
+    border-color: var(--green);
+  }
+
+  pre {
+    padding: 14px;
+    overflow-x: auto;
+    font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    color: #e6edf3;
+  }
+
+  .comment { color: #6e7681; }
+  .cmd { color: #79c0ff; }
+  .arg { color: #a5d6ff; }
+  .str { color: #a8daab; }
+  .flag { color: #d2a8ff; }
+  .path { color: #ffa657; }
+
+  /* NOTE BOXES */
+  .note {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 10px;
+    display: flex;
+    gap: 8px;
+  }
+
+  .note-icon { flex-shrink: 0; }
+
+  /* MANUAL STEPS */
+  .manual-steps {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px;
+    margin-top: 10px;
+  }
+
+  .manual-steps h4 {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .manual-steps ol {
+    padding-left: 18px;
+    font-size: 13px;
+    color: var(--text);
+    line-height: 2;
+  }
+
+  .manual-steps li strong { color: var(--blue); }
+
+  /* VARIABLE REPLACE TABLE */
+  .vars-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-top: 10px;
+  }
+
+  .vars-table th {
+    background: var(--surface2);
+    color: var(--text-muted);
+    padding: 8px 12px;
+    text-align: left;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid var(--border);
+  }
+
+  .vars-table td {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  .vars-table tr:nth-child(even) td { background: var(--surface2); }
+  .vars-table code { color: var(--purple); background: var(--surface2); padding: 1px 5px; border-radius: 3px; font-size: 12px; }
+
+  /* DIVIDER */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 40px 0;
+  }
+
+  /* SUMMARY SECTION */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .summary-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+  }
+
+  .summary-card h4 {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .summary-card ul {
+    list-style: none;
+    font-size: 13px;
+  }
+
+  .summary-card ul li {
+    padding: 4px 0;
+    color: var(--text);
+    display: flex;
+    gap: 8px;
+  }
+
+  .summary-card ul li::before { content: '✓'; color: var(--green); flex-shrink: 0; }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 20px 40px;
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 12px;
+    margin-top: 60px;
+  }
+
+  @media (max-width: 600px) {
+    header { padding: 14px 16px; }
+    .container { padding: 24px 16px; }
+    .summary-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">⎇</div>
+  <div>
+    <h1>Git Server Setup Guide</h1>
+    <p>ServiceHub Limited — Production Server → GitHub</p>
+  </div>
+  <span class="badge">Internal DevOps</span>
+</header>
+
+<div class="container">
+
+  <!-- INTRO ALERTS -->
+  <div class="alert alert-danger">
+    <span class="alert-icon">🔴</span>
+    <div class="alert-content">
+      <strong>Before you begin — replace all placeholders</strong>
+      See the variables table below. Replace <code style="color:#f85149;background:#3d0d09;padding:1px 5px;border-radius:3px">&lt;PROJECT_PATH&gt;</code>, <code style="color:#f85149;background:#3d0d09;padding:1px 5px;border-radius:3px">&lt;REPO_NAME&gt;</code> etc. with actual values before running any command.
+    </div>
+  </div>
+
+  <div class="alert alert-warning">
+    <span class="alert-icon">⚠️</span>
+    <div class="alert-content">
+      <strong>Server code is always the source of truth</strong>
+      We never pull from GitHub to the server at the start. We push server → GitHub. GitHub gets overwritten.
+    </div>
+  </div>
+
+  <!-- VARIABLES TABLE -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">📋</div>
+      <div class="step-title">Variables — Replace These Before Running Commands</div>
+    </div>
+    <div class="step-body">
+      <table class="vars-table">
+        <thead>
+          <tr>
+            <th>Placeholder</th>
+            <th>Description</th>
+            <th>Example</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>&lt;PROJECT_PATH&gt;</code></td><td>Full path to project on server</td><td><code>/var/www/api_paystation/public_html</code></td></tr>
+          <tr><td><code>&lt;ORG_NAME&gt;</code></td><td>GitHub organization name</td><td><code>ServiceHubLimited</code></td></tr>
+          <tr><td><code>&lt;REPO_NAME&gt;</code></td><td>GitHub repository name</td><td><code>pgw-api</code> or <code>shl-sms8</code></td></tr>
+          <tr><td><code>&lt;KEY_NAME&gt;</code></td><td>SSH key filename (no spaces)</td><td><code>pgw_api_deploy</code></td></tr>
+          <tr><td><code>&lt;SSH_ALIAS&gt;</code></td><td>SSH config host alias</td><td><code>github-pgw-api</code></td></tr>
+          <tr><td><code>&lt;KEY_COMMENT&gt;</code></td><td>Label for the key</td><td><code>pgw-api-server</code></td></tr>
+          <tr><td><code>&lt;DEPLOY_KEY_TITLE&gt;</code></td><td>Title shown on GitHub</td><td><code>pgw-api-production-server</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== PHASE 1 ===== -->
+  <div class="phase">
+    <div class="phase-num">1</div>
+    <div>
+      <h2>Backup & Navigate</h2>
+      <p>Always backup before touching git</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">1</div>
+      <div class="step-title">Find the project path</div>
+      <span class="step-tag tag-server">Server</span>
+    </div>
+    <div class="step-body">
+      <p class="step-desc">If you don't know the exact path, search for it first.</p>
+      <div class="code-block">
+        <div class="code-label">bash <button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="comment"># Search for project directory</span>
+<span class="cmd">find</span> / <span class="flag">-type</span> d <span class="flag">-name</span> <span class="str">"&lt;PROJECT_FOLDER&gt;"</span> 2>/dev/null
+
+<span class="comment"># Or list common webroot locations</span>
+<span class="cmd">ls</span> /var/www/</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">2</div>
+      <div class="step-title">Backup server code — DO NOT SKIP</div>
+      <span class="step-tag tag-critical">Critical</span>
+    </div>
+    <div class="step-body">
+      <p class="step-desc">Creates a timestamped copy of the entire project. If anything goes wrong, the backup is untouched.</p>
+      <div class="code-block">
+        <div class="code-label">bash <button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="cmd">cp</span> <span class="flag">-r</span> <span class="path">&lt;PROJECT_PATH&gt;</span> <span class="path">&lt;PROJECT_PATH&gt;</span>_backup_<span class="arg">$(date +%Y%m%d_%H%M%S)</span>
+
+<span class="comment"># Verify both folders exist</span>
+<span class="cmd">ls</span> <span class="flag">-lh</span> /var/www/&lt;project-parent&gt;/ | <span class="cmd">grep</span> &lt;project-folder&gt;</pre>
+      </div>
+      <div class="note">
+        <span class="note-icon">💡</span>
+        You must see TWO entries — original and backup — before proceeding.
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">3</div>
+      <div class="step-title">Navigate into project</div>
+      <span class="step-tag tag-server">Server</span>
+    </div>
+    <div class="step-body">
+      <div class="code-block">
+        <div class="code-label">bash <button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="cmd">cd</span> <span class="path">&lt;PROJECT_PATH&gt;</span>
+
+<span class="comment"># Confirm you're in the right place</span>
+<span class="cmd">pwd</span>
+<span class="cmd">ls</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PHASE 2 ===== -->
+  <div class="phase">
+    <div class="phase-num">2</div>
+    <div>
+      <h2>Fix .gitignore</h2>
+      <p>Exclude secrets, uploads, and runtime files before staging</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">4</div>
+      <div class="step-title">Check & update .gitignore</div>
+      <span class="step-tag tag-critical">Critical</span>
+    </div>
+    <div class="step-body">
+      <p class="step-desc">Check what's already excluded. Then add any missing entries. Never commit <code>.env</code>, <code>vendor/</code>, certificates, or upload files.</p>
+      <div class="code-block">
+        <div class="code-label">bash <button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="cmd">cat</span> .gitignore</pre>
+      </div>
+      <div class="code-block">
+        <div class="code-label">bash — edit if needed <button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="cmd">nano</span> .gitignore</pre>
+      </div>
+      <div class="code-block">
+        <div class="code-label">.gitignore — minimum required entries <button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="comment"># Laravel defaults</span>
+/node_modules
+/public/hot
+/public/storage
+/storage/*.key
+/vendor
+.env
+.env.backup
+
+<span class="comment"># Runtime / cache</span>
+/storage/framework/sessions/
+/storage/framework/cache/
+/storage/framework/views/
+/storage/logs/
+
+<span class="comment"># Uploads & user files</span>
+/public/uploads/
+/uploads/
+
+<span class="comment"># SSL Certificates — NEVER commit these</span>
+/public/securefile/
+*.crt
+*.key
+*.pem
+
+<span class="comment"># Archives</span>
+*.tar.gz
+*.tar
+*.zip</pre>
+      </div>
+      <div class="note">
+        <span class="note-icon">💾</span>
+        Save in nano: <strong>Ctrl+O → Enter → Ctrl+X</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">5</div>
+      <div class="step-title">Untrack already-tracked files that should be ignored</div>
+      <span class="step-tag tag-server">Server</span>
+    </div>
+    <div class="step-body">
+      <p class="step-desc">If uploads, certs, or storage files were previously committed, remove them from git's index (files stay safe on disk).</p>
+      <div class="code-block">
+        <div class="code-label">bash <button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="comment"># Untrack common directories</span>
+<span class="cmd">git rm</span> <span class="flag">-r --cached</span> public/uploads/ 2>/dev/null
+<span class="cmd">git rm</span> <span class="flag">-r --cached</span> public/securefile/ 2>/dev/null
+<span class="cmd">git rm</span> <span class="flag">-r --cached</span> storage/framework/views/ 2>/dev/null
+
+<span class="comment"># Untrack common files</span>
+<span class="cmd">git rm</span> <span class="flag">--cached</span> .env 2>/dev/null
+<span class="cmd">git rm</span> <span class="flag">--cached</span> *.crt *.key 2>/dev/null
+
+<span class="comment"># Verify no sensitive files remain staged</span>
+<span class="cmd">git status</span> | <span class="cmd">grep</span> <span class="flag">-E</span> <span class="str">"\.env|\.key|\.crt|\.pem|securefile|uploads"</span></pre>
+      </div>
+      <div class="note">
+        <span class="note-icon">✅</span>
+        The grep should return <strong>nothing</strong>. If it does return something, remove it with <code>git rm --cached &lt;file&gt;</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PHASE 3 ===== -->
+  <div class="phase">
+    <div class="phase-num">3</div>
+    <div>
+      <h2>Initialize Git & Commit</h2>
+      <p>Only if git doesn't exist. Skip git init if already initialized.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">6</div>
+      <div class="step-title">Initialize git (skip if already exists)</div>
+      <span class="step-tag tag-optional">If no git</span>
+    </div>
+    <div class="step-body">
+      <div class="code-block">
+        <div class="code-label">bash <button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="comment"># Check if git already exists</span>
+<span class="cmd">ls</span> <span class="flag">-la</span> | <span class="cmd">grep</span> .git
+
+<span class="comment"># If NO .git folder exists, initialize</span>
+<span class="cmd">git init</span>
+
+<span class="comment"># Set global identity (use org email)</span>
+<span class="cmd">git config</span> <span class="flag">--global</span> user.name <span class="str">"ServiceHub Dev"</span>
+<span class="cmd">git config</span> <span class="flag">--global</span> user.email <span class="str">"mizanur.rahman@paystation.com.bd"</span>
+
+<span class="comment"># Allow this directory (fixes ownership errors)</span>
+<span class="cmd">git config</span> <span class="flag">--global</span> <span class="flag">--add</span> safe.directory <span class="path">&lt;PROJECT_PATH&gt;</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">7</div>
+      <div class="step-title">Stage & commit all server code</div>
+      <span class="step-tag tag-server">Server</span>
+    </div>
+    <div class="step-body">
+      <p class="step-desc">Review what's staged before committing. Make sure no <code>.env</code> or certificates appear in the list.</p>
+      <div class="code-block">
+        <div class="code-label">bash <button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="cmd">git add</span> <span class="flag">-A</span>
+
+<span class="comment"># Review staged files — check for secrets!</span>
+<span class="cmd">git status</span>
+
+<span class="comment"># Commit</span>
+<span class="cmd">git commit</span> <span class="flag">-m</span> <span class="str">"chore: init commit from production server &lt;REPO_NAME&gt;"</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PHASE 4 ===== -->
+  <div class="phase">
+    <div class="phase-num">4</div>
+    <div>
+      <h2>Deploy Key Setup</h2>
+      <p>SSH deploy key so server can push/pull without passwords</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">8</div>
+      <div class="step-title">Generate SSH deploy key on server</div>
+      <span class="step-tag tag-server">Server</span>
+    </div>
+    <div class="step-body">
+      <div class="code-block">
+        <div class="code-label">bash <button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="cmd">ssh-keygen</span> <span class="flag">-t</span> ed25519 <span class="flag">-C</span> <span class="str">"&lt;KEY_COMMENT&gt;"</span> <span class="flag">-f</span> ~/.ssh/<span class="arg">&lt;KEY_NAME&gt;</span>
+<span class="comment"># Press Enter twice (no passphrase)</span>
+
+<span class="comment"># View the public key to copy to GitHub</span>
+<span class="cmd">cat</span> ~/.ssh/<span class="arg">&lt;KEY_NAME&gt;</span>.pub</pre>
+      </div>
+      <div class="note">
+        <span class="note-icon">🔑</span>
+        Copy the entire output line starting with <code>ssh-ed25519 AAAA...</code>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">9</div>
+      <div class="step-title">Add deploy key to GitHub</div>
+      <span class="step-tag tag-github">GitHub</span>
+    </div>
+    <div class="step-body">
+      <div class="manual-steps">
+        <h4>Manual steps in browser</h4>
+        <ol>
+          <li>Go to <strong>github.com/&lt;ORG_NAME&gt;/&lt;REPO_NAME&gt;/settings/keys</strong></li>
+          <li>Click <strong>"Add deploy key"</strong></li>
+          <li>Title: <strong>&lt;DEPLOY_KEY_TITLE&gt;</strong></li>
+          <li>Key: <strong>paste the public key</strong></li>
+          <li>✅ Check <strong>"Allow write access"</strong></li>
+          <li>Click <strong>"Add key"</strong></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">10</div>
+      <div class="step-title">Configure SSH to use deploy key</div>
+      <span class="step-tag tag-server">Server</span>
+    </div>
+    <div class="step-body">
+      <div class="code-block">
+        <div class="code-label">bash <button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="cmd">nano</span> ~/.ssh/config</pre>
+      </div>
+      <div class="code-block">
+        <div class="code-label">~/.ssh/config — add this block <button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre>Host <span class="arg">&lt;SSH_ALIAS&gt;</span>
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/<span class="arg">&lt;KEY_NAME&gt;</span>
+    IdentitiesOnly yes</pre>
+      </div>
+      <div class="code-block">
+        <div class="code-label">bash — test connection <button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="cmd">ssh</span> <span class="flag">-T</span> <span class="arg">&lt;SSH_ALIAS&gt;</span>
+<span class="comment"># Type 'yes' when prompted</span>
+<span class="comment"># Expected: Hi &lt;ORG_NAME&gt;/&lt;REPO_NAME&gt;! You've successfully authenticated...</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PHASE 5 ===== -->
+  <div class="phase">
+    <div class="phase-num">5</div>
+    <div>
+      <h2>Remote & Branch Setup</h2>
+      <p>Connect to GitHub and push server code to release branch</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">11</div>
+      <div class="step-title">Set GitHub remote</div>
+      <span class="step-tag tag-server">Server</span>
+    </div>
+    <div class="step-body">
+      <p class="step-desc">If a remote already exists with old URL, remove it first. Then add the new SSH remote using the alias.</p>
+      <div class="code-block">
+        <div class="code-label">bash <button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="comment"># Remove old remote if exists</span>
+<span class="cmd">git remote remove</span> origin 2>/dev/null
+
+<span class="comment"># Add new SSH remote using alias</span>
+<span class="cmd">git remote add</span> origin git@<span class="arg">&lt;SSH_ALIAS&gt;</span>:<span class="arg">&lt;ORG_NAME&gt;</span>/<span class="arg">&lt;REPO_NAME&gt;</span>.git
+
+<span class="comment"># Verify</span>
+<span class="cmd">git remote</span> <span class="flag">-v</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">12</div>
+      <div class="step-title">Fetch remote & create release branch</div>
+      <span class="step-tag tag-server">Server</span>
+    </div>
+    <div class="step-body">
+      <div class="code-block">
+        <div class="code-label">bash <button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="comment"># Fetch remote (safe — no file changes)</span>
+<span class="cmd">git fetch</span> origin
+
+<span class="comment"># Check current branch name</span>
+<span class="cmd">git branch</span>
+
+<span class="comment"># If branch is 'master' or 'main', rename to 'release'</span>
+<span class="cmd">git branch</span> <span class="flag">-m</span> master release
+<span class="comment"># OR if already on a named branch, create release from it</span>
+<span class="cmd">git checkout</span> <span class="flag">-b</span> release</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">13</div>
+      <div class="step-title">Force push server code to GitHub release branch</div>
+      <span class="step-tag tag-critical">Critical</span>
+    </div>
+    <div class="step-body">
+      <p class="step-desc">This overwrites the remote <code>release</code> branch with server code. Server code wins. This is intentional.</p>
+      <div class="code-block">
+        <div class="code-label">bash <button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="cmd">git push</span> origin release <span class="flag">--force</span>
+
+<span class="comment"># Set upstream tracking</span>
+<span class="cmd">git branch</span> <span class="flag">--set-upstream-to</span>=origin/release release
+
+<span class="comment"># Final verify</span>
+<span class="cmd">git status</span></pre>
+      </div>
+      <div class="note">
+        <span class="note-icon">✅</span>
+        Expected: <code>On branch release — Your branch is up to date with 'origin/release'. nothing to commit, working tree clean</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PHASE 6 ===== -->
+  <div class="phase">
+    <div class="phase-num">6</div>
+    <div>
+      <h2>Developer Workflow</h2>
+      <p>What developers do locally after server push</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">14</div>
+      <div class="step-title">Sync local machine to new release branch</div>
+      <span class="step-tag tag-optional">Local</span>
+    </div>
+    <div class="step-body">
+      <p class="step-desc">Since we force-pushed, the remote release history changed. Run this on local machines to sync.</p>
+      <div class="code-block">
+        <div class="code-label">powershell / bash (local machine) <button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="cmd">git checkout</span> release
+<span class="cmd">git fetch</span> origin
+<span class="cmd">git reset</span> <span class="flag">--hard</span> origin/release</pre>
+      </div>
+      <div class="alert alert-warning" style="margin-top:12px;margin-bottom:0">
+        <span class="alert-icon">⚠️</span>
+        <div class="alert-content">
+          <strong>This discards local release history.</strong> If developer has uncommitted work on another branch, it's safe — only affects the <code>release</code> branch.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">15</div>
+      <div class="step-title">Create feature branch & start working</div>
+      <span class="step-tag tag-optional">Local</span>
+    </div>
+    <div class="step-body">
+      <div class="code-block">
+        <div class="code-label">powershell / bash (local machine) <button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="comment"># Always branch off release</span>
+<span class="cmd">git checkout</span> release
+<span class="cmd">git checkout</span> <span class="flag">-b</span> feature/your-feature-name
+
+<span class="comment"># Work, then commit & push</span>
+<span class="cmd">git add</span> <span class="flag">-A</span>
+<span class="cmd">git commit</span> <span class="flag">-m</span> <span class="str">"feat: your change description"</span>
+<span class="cmd">git push</span> origin feature/your-feature-name
+
+<span class="comment"># On server — pull latest release</span>
+<span class="cmd">cd</span> <span class="path">&lt;PROJECT_PATH&gt;</span>
+<span class="cmd">git pull</span> origin release</pre>
+      </div>
+      <div class="manual-steps" style="margin-top:12px">
+        <h4>Branch naming conventions</h4>
+        <ol style="list-style:none;padding:0">
+          <li style="padding:3px 0;color:#e6edf3"><code style="color:#a5d6ff;background:#010409;padding:2px 6px;border-radius:3px">feature/payment-gateway</code> — New features</li>
+          <li style="padding:3px 0;color:#e6edf3"><code style="color:#a5d6ff;background:#010409;padding:2px 6px;border-radius:3px">fix/login-error</code> — Bug fixes</li>
+          <li style="padding:3px 0;color:#e6edf3"><code style="color:#a5d6ff;background:#010409;padding:2px 6px;border-radius:3px">hotfix/bkash-callback</code> — Urgent production fixes</li>
+          <li style="padding:3px 0;color:#e6edf3"><code style="color:#a5d6ff;background:#010409;padding:2px 6px;border-radius:3px">dev-&lt;name&gt;</code> — Personal dev branch (e.g. dev-shakil)</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PHASE 7 ===== -->
+  <div class="phase">
+    <div class="phase-num">7</div>
+    <div>
+      <h2>Developer Onboarding from Local Code</h2>
+      <p>For developers who already have code locally — tracked or untracked — and need to sync with the new <code>release</code> branch</p>
+    </div>
+  </div>
+
+  <div class="alert alert-warning">
+    <span class="alert-icon">⚠️</span>
+    <div class="alert-content">
+      <strong>Read this before running any git command.</strong>
+      Identify your situation below first. Running the wrong flow can overwrite local work.
+    </div>
+  </div>
+
+  <!-- SCENARIO A -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">A</div>
+      <div class="step-title">Scenario A — Already using Git, code is committed</div>
+      <span class="step-tag tag-optional">Local</span>
+    </div>
+    <div class="step-body">
+      <p class="step-desc">Your local code is already tracked by git and all changes are committed (no pending uncommitted files). You just need to pull <code>release</code> and branch off it.</p>
+      <div class="code-block">
+        <div class="code-label">bash / powershell — check your current state first <button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="comment"># See which branch you're on and what's uncommitted</span>
+<span class="cmd">git status</span>
+<span class="cmd">git branch</span></pre>
+      </div>
+      <div class="code-block">
+        <div class="code-label">bash / powershell — add remote and pull release <button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="comment"># Add remote if not set yet</span>
+<span class="cmd">git remote add</span> origin <span class="arg">&lt;REPO_SSH_OR_HTTPS_URL&gt;</span>
+
+<span class="comment"># Fetch all remote branches</span>
+<span class="cmd">git fetch</span> origin
+
+<span class="comment"># Switch to release and sync</span>
+<span class="cmd">git checkout</span> release
+<span class="cmd">git pull</span> origin release</pre>
+      </div>
+      <div class="code-block">
+        <div class="code-label">bash / powershell — create your working branch <button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="comment"># Branch off release — use a name that matches your work</span>
+<span class="cmd">git checkout</span> <span class="flag">-b</span> feature/your-feature-name
+
+<span class="comment"># Continue working normally</span>
+<span class="cmd">git add</span> <span class="flag">-A</span>
+<span class="cmd">git commit</span> <span class="flag">-m</span> <span class="str">"feat: description of your work"</span>
+<span class="cmd">git push</span> origin feature/your-feature-name</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCENARIO B -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">B</div>
+      <div class="step-title">Scenario B — Using Git but have uncommitted / extra local changes</div>
+      <span class="step-tag tag-optional">Local</span>
+    </div>
+    <div class="step-body">
+      <p class="step-desc">You have local changes that are NOT yet committed — either new files or modified files. You want to preserve this extra work and also sync with <code>release</code>. Use <strong>stash</strong> to temporarily save your work, pull release, then restore it.</p>
+      <div class="code-block">
+        <div class="code-label">bash / powershell — stash your changes first <button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="comment"># Save all uncommitted changes (tracked + new files) to stash</span>
+<span class="cmd">git stash push</span> <span class="flag">-u</span> <span class="flag">-m</span> <span class="str">"my-wip-before-release-sync"</span>
+
+<span class="comment"># Verify stash is saved</span>
+<span class="cmd">git stash list</span></pre>
+      </div>
+      <div class="code-block">
+        <div class="code-label">bash / powershell — sync with release <button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="comment"># Fetch and switch to release</span>
+<span class="cmd">git fetch</span> origin
+<span class="cmd">git checkout</span> release
+<span class="cmd">git pull</span> origin release
+
+<span class="comment"># Create your working branch</span>
+<span class="cmd">git checkout</span> <span class="flag">-b</span> feature/your-feature-name</pre>
+      </div>
+      <div class="code-block">
+        <div class="code-label">bash / powershell — restore your stashed work <button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="comment"># Restore the stashed changes onto your new branch</span>
+<span class="cmd">git stash pop</span>
+
+<span class="comment"># If there are conflicts, resolve them, then:</span>
+<span class="cmd">git add</span> <span class="flag">-A</span>
+<span class="cmd">git commit</span> <span class="flag">-m</span> <span class="str">"wip: restored local work on top of release"</span></pre>
+      </div>
+      <div class="note">
+        <span class="note-icon">💡</span>
+        <code>git stash push -u</code> includes <strong>untracked new files</strong> too. Without <code>-u</code>, new files you haven't added yet won't be stashed.
+      </div>
+    </div>
+  </div>
+
+  <!-- SCENARIO C -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">C</div>
+      <div class="step-title">Scenario C — Code is NOT under git at all (no .git folder)</div>
+      <span class="step-tag tag-optional">Local</span>
+    </div>
+    <div class="step-body">
+      <p class="step-desc">Your local project folder has no git history. You need to safely back up your extra work, initialize git, pull from <code>release</code>, then bring your changes back in.</p>
+      <div class="code-block">
+        <div class="code-label">bash / powershell — Step 1: back up your extra work <button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="comment"># Copy your project folder to a safe backup location first</span>
+<span class="comment"># Windows example:</span>
+<span class="cmd">xcopy</span> C:\path\to\your-project C:\Backup\project-backup-<span class="arg">&lt;date&gt;</span> /E /I
+
+<span class="comment"># Linux/Mac example:</span>
+<span class="cmd">cp</span> <span class="flag">-r</span> /path/to/your-project ~/backup/project-backup-<span class="arg">&lt;date&gt;</span></pre>
+      </div>
+      <div class="code-block">
+        <div class="code-label">bash / powershell — Step 2: clone release into a fresh folder <button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="comment"># Clone only the release branch into a new folder</span>
+<span class="cmd">git clone</span> <span class="flag">--branch</span> release <span class="flag">--single-branch</span> <span class="arg">&lt;REPO_SSH_OR_HTTPS_URL&gt;</span> project-release
+
+<span class="comment"># Enter the folder and create your working branch</span>
+<span class="cmd">cd</span> project-release
+<span class="cmd">git checkout</span> <span class="flag">-b</span> feature/your-feature-name</pre>
+      </div>
+      <div class="code-block">
+        <div class="code-label">bash / powershell — Step 3: copy your extra work in <button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="comment"># Manually copy over only the files YOU changed or added</span>
+<span class="comment"># from your backup folder into the new project-release folder</span>
+<span class="comment"># Do NOT copy .env, node_modules, vendor — those come from release</span>
+
+<span class="comment"># Then commit your extra work</span>
+<span class="cmd">git add</span> <span class="flag">-A</span>
+<span class="cmd">git status</span>   <span class="comment"># review what's changed</span>
+<span class="cmd">git commit</span> <span class="flag">-m</span> <span class="str">"feat: brought in local work from pre-git setup"</span>
+<span class="cmd">git push</span> origin feature/your-feature-name</pre>
+      </div>
+      <div class="alert alert-warning" style="margin-top:12px;margin-bottom:0">
+        <span class="alert-icon">⚠️</span>
+        <div class="alert-content">
+          <strong>Don't overwrite .env or config files from your backup.</strong> The <code>release</code> branch has the correct server-synced configs. Only bring in your feature files.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MERGING EXTRA WORK LATER -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">D</div>
+      <div class="step-title">Merging your extra work back into release (when ready)</div>
+      <span class="step-tag tag-optional">Local</span>
+    </div>
+    <div class="step-body">
+      <p class="step-desc">Once your extra work is committed on a feature branch and tested, merge it back into <code>release</code>. Never commit directly to <code>release</code> — always go through a feature branch.</p>
+      <div class="code-block">
+        <div class="code-label">bash / powershell — merge feature into release <button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="comment"># Make sure release is up to date first</span>
+<span class="cmd">git checkout</span> release
+<span class="cmd">git pull</span> origin release
+
+<span class="comment"># Merge your feature branch</span>
+<span class="cmd">git merge</span> feature/your-feature-name
+
+<span class="comment"># Resolve any conflicts, then push</span>
+<span class="cmd">git push</span> origin release</pre>
+      </div>
+      <div class="code-block">
+        <div class="code-label">bash / powershell — OR via pull request (recommended) <button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><span class="comment"># Push your feature branch to GitHub</span>
+<span class="cmd">git push</span> origin feature/your-feature-name
+
+<span class="comment"># Then open a Pull Request on GitHub:</span>
+<span class="comment"># base: release  ←  compare: feature/your-feature-name</span>
+<span class="comment"># Get a review, then merge via GitHub UI</span></pre>
+      </div>
+      <div class="note">
+        <span class="note-icon">✅</span>
+        PR merges are preferred — they keep a clear history of who changed what and allow code review before anything hits <code>release</code>.
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- SUMMARY -->
+  <div class="phase">
+    <div class="phase-num">✓</div>
+    <div>
+      <h2>Completion Checklist</h2>
+      <p>Verify everything is done correctly</p>
+    </div>
+  </div>
+
+  <div class="summary-grid">
+    <div class="summary-card">
+      <h4>Server Setup</h4>
+      <ul>
+        <li>Backup exists with timestamp</li>
+        <li>.gitignore excludes .env & certs</li>
+        <li>Uploads & storage/views untracked</li>
+        <li>Git initialized or existing</li>
+        <li>Server code committed</li>
+      </ul>
+    </div>
+    <div class="summary-card">
+      <h4>GitHub Connection</h4>
+      <ul>
+        <li>Deploy key generated on server</li>
+        <li>Public key added to GitHub repo</li>
+        <li>SSH config alias created</li>
+        <li>SSH test returns "successfully authenticated"</li>
+        <li>Remote set to SSH alias URL</li>
+      </ul>
+    </div>
+    <div class="summary-card">
+      <h4>Branch & Push</h4>
+      <ul>
+        <li>On release branch locally</li>
+        <li>Force pushed to origin/release</li>
+        <li>Upstream tracking set</li>
+        <li>git status shows clean</li>
+      </ul>
+    </div>
+    <div class="summary-card">
+      <h4>Developer Sync</h4>
+      <ul>
+        <li>Local release reset to origin/release</li>
+        <li>New feature branches from release</li>
+        <li>Extra local work stashed or backed up</li>
+        <li>Untracked code cloned fresh from release</li>
+        <li>PRs merge feature → release</li>
+        <li>Server pulls from release</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="alert alert-success" style="margin-top:24px">
+    <span class="alert-icon">🎉</span>
+    <div class="alert-content">
+      <strong>Setup complete!</strong>
+      Server code is now version controlled. All future changes should be committed and pushed. Use <code>git pull origin release</code> on server to deploy updates.
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  ServiceHub Limited — Internal DevOps Documentation · Git Server Setup Guide · Aug 2026
+</footer>
+
+<script>
+  function copyCode(btn) {
+    const pre = btn.closest('.code-block').querySelector('pre');
+    const text = pre.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'Copy';
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+</script>
+
+</body>
+</html>
